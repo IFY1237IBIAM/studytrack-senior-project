@@ -7,3 +7,6 @@ StudyTrack is a web-based task and progress management system designed for small
 
 **Malcolm Nkomo:**
 "Come what may, and love it."
+
+**Leo Alfred A. Mosquera:**
+"Keep moving forward."
