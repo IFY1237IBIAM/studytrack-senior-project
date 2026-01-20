@@ -9,9 +9,9 @@ export default function Login() {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const navigate = useNavigate(); // <-- navigation
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!form.email || !form.password) {
@@ -22,14 +22,36 @@ export default function Login() {
     setError("");
     setLoading(true);
 
-    setTimeout(() => {
-      setLoading(false);
-      setSuccess("Login is successful!");
-      setForm({ email: "", password: "" });
+    try {
+      const response = await fetch("http://localhost:5001/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
 
-      // Redirect to Dashboard
-      navigate("/dashboard");
-    }, 2000);
+      const data = await response.json();
+
+      if (response.ok) {
+        setSuccess("Login is successful!");
+        setForm({ email: "", password: "" });
+
+        // Save user info and token
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("userName", data.name);
+        localStorage.setItem("userId", data.id);
+
+        setTimeout(() => {
+          navigate("/dashboard");
+        }, 1500);
+      } else {
+        setError(data.message || "Invalid credentials.");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Server error. Please check your connection.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
