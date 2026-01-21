@@ -24,7 +24,7 @@ export default function Header() {
         {/* NAVIGATION */}
         <nav className={`nav ${open ? "show" : ""}`}>
           <Link to="/" onClick={() => setOpen(false)}>Home</Link>
-          <a href="#">About</a>
+          <Link to="/about">About</Link>
           <Link to="/contact" onClick={() => setOpen(false)}>Contact</Link>
           <Link to="/login" onClick={() => setOpen(false)}>Login</Link>
         </nav>

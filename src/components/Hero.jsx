@@ -1,14 +1,14 @@
 // src/components/Hero.jsx
+import { useNavigate } from "react-router-dom";
 import heroImage from "../assets/hero-banner.png";
 
 export default function Hero() {
+  const navigate = useNavigate();
+
   return (
     <>
-      {/* ================= HERO SECTION ================= */}
       <section className="hero">
         <div className="container hero-content">
-          
-          {/* TEXT SIDE */}
           <div className="hero-text">
             <h1>Learn Anything, Anytime</h1>
             <p>
@@ -16,27 +16,25 @@ export default function Hero() {
               and stay organized — all in one place.
             </p>
 
-            <button className="btn-primary">Get Started</button>
+            <button className="btn-primary" onClick={() => navigate("/login")}>
+              Get Started
+            </button>
 
-            {/* STATS */}
             <div className="hero-stats">
               <div className="stat">
                 <h3>50+</h3>
                 <span>Active Students</span>
               </div>
-
               <div className="stat">
                 <h3>120+</h3>
                 <span>Study Sessions</span>
               </div>
-
               <div className="stat">
                 <h3>95%</h3>
                 <span>Productivity Boost</span>
               </div>
             </div>
 
-            {/* TESTIMONIAL */}
             <div className="hero-testimonial">
               <p>
                 “StudyTrack helped me stay consistent and plan my semester
@@ -46,14 +44,12 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* IMAGE SIDE */}
           <div className="hero-image">
             <img src={heroImage} alt="Study illustration" />
           </div>
         </div>
       </section>
 
-      {/* ================= TEAM SECTION ================= */}
       <section className="team">
         <div className="container">
           <h2 className="section-title">Meet Our Team</h2>
@@ -75,27 +71,21 @@ export default function Hero() {
               <div className="team-avatar">MA</div>
               <h3>Maria Arevalo</h3>
               <span>Planning & Documentation</span>
-              <p>
-                “Clear documentation creates smooth collaboration.”
-              </p>
+              <p>“Clear documentation creates smooth collaboration.”</p>
             </div>
 
             <div className="team-card">
               <div className="team-avatar">LA</div>
               <h3>Leo Alfred</h3>
               <span>Backend & API Design</span>
-              <p>
-                “Strong logic is the backbone of every great application.”
-              </p>
+              <p>“Strong logic is the backbone of every great application.”</p>
             </div>
 
             <div className="team-card">
               <div className="team-avatar">MN</div>
               <h3>Malcom Nigel</h3>
               <span>Testing & Quality Assurance</span>
-              <p>
-                “Reliability turns good ideas into trusted products.”
-              </p>
+              <p>“Reliability turns good ideas into trusted products.”</p>
             </div>
           </div>
         </div>
