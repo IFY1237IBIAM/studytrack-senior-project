@@ -6,7 +6,7 @@ export default function Contact() {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!form.name || !form.email || !form.message) {
@@ -17,11 +17,25 @@ export default function Contact() {
     setError("");
     setLoading(true);
 
-    setTimeout(() => {
+    try {
+      const response = await fetch("http://localhost:5001/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      if (response.ok) {
+        setSuccess("Message sent successfully!");
+        setForm({ name: "", email: "", message: "" });
+      } else {
+        setError("Failed to send message. Try again.");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Server error. Please check your connection.");
+    } finally {
       setLoading(false);
-      setSuccess("Message sent successfully!");
-      setForm({ name: "", email: "", message: "" });
-    }, 2000);
+    }
   };
 
   return (

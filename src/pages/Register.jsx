@@ -9,9 +9,9 @@ export default function Register() {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const navigate = useNavigate(); // <-- navigation
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!form.name || !form.email || !form.password) {
@@ -22,14 +22,36 @@ export default function Register() {
     setError("");
     setLoading(true);
 
-    setTimeout(() => {
-      setLoading(false);
-      setSuccess("Registration successful!");
-      setForm({ name: "", email: "", password: "" });
+    try {
+      const response = await fetch("http://localhost:5001/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
 
-      // Redirect to Dashboard
-      navigate("/dashboard");
-    }, 2000);
+      const data = await response.json();
+
+      if (response.ok) {
+        setSuccess("Registration successful!");
+        setForm({ name: "", email: "", password: "" });
+
+        // Save user info and token
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("userName", data.name);
+        localStorage.setItem("userId", data.id);
+
+        setTimeout(() => {
+          navigate("/dashboard");
+        }, 1500);
+      } else {
+        setError(data.message || "Registration failed.");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Server error completely. Please check your connection.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

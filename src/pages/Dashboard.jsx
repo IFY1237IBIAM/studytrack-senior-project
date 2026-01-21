@@ -1,33 +1,95 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const userName = localStorage.getItem("userName") || "Student";
+  const token = localStorage.getItem("token");
 
-  const [tasks, setTasks] = useState([
-    { id: 1, title: "Finish math assignment", status: "To-Do" },
-    { id: 2, title: "Submit group report", status: "In Progress" },
-    { id: 3, title: "Prepare presentation", status: "Completed" },
-  ]);
-
+  const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState({ title: "", status: "To-Do" });
+  const [loading, setLoading] = useState(false);
 
-  const handleAddTask = (e) => {
+  // Checks if user is logged in
+  useEffect(() => {
+    if (!token) {
+      navigate("/login");
+    } else {
+      fetchTasks();
+    }
+  }, [token, navigate]);
+
+  const fetchTasks = async () => {
+    try {
+      const response = await fetch("http://localhost:5001/api/tasks", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setTasks(data);
+      }
+    } catch (error) {
+      console.error("Error fetching tasks:", error);
+    }
+  };
+
+  const handleAddTask = async (e) => {
     e.preventDefault();
     if (!newTask.title.trim()) return;
 
-    setTasks([
-      ...tasks,
-      { id: Date.now(), title: newTask.title, status: newTask.status },
-    ]);
-
-    setNewTask({ title: "", status: "To-Do" });
+    try {
+      const response = await fetch("http://localhost:5001/api/tasks", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(newTask),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setTasks([...tasks, data]);
+        setNewTask({ title: "", status: "To-Do" });
+      }
+    } catch (error) {
+      console.error("Error adding task:", error);
+    }
   };
 
-  const handleStatusChange = (id, status) => {
-    setTasks(
-      tasks.map((task) => (task.id === id ? { ...task, status } : task))
-    );
+  const handleStatusChange = async (id, status) => {
+    // Optimistic update
+    setTasks(tasks.map((task) => (task.id === id ? { ...task, status } : task)));
+
+    try {
+      await fetch(`http://localhost:5001/api/tasks/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ status }),
+      });
+    } catch (error) {
+      console.error("Error updating task:", error);
+    }
   };
+
+  const handleDeleteTask = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this task?")) return;
+
+    try {
+      const response = await fetch(`http://localhost:5001/api/tasks/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.ok) {
+        setTasks(tasks.filter(t => t.id !== id));
+      }
+    } catch (error) {
+      console.error("Error deleting task:", error);
+    }
+  }
 
   // Summary counts
   const totalTasks = tasks.length;
@@ -37,7 +99,18 @@ export default function Dashboard() {
   return (
     <section className="dashboard">
       <div className="container">
-        <h1>Welcome, {userName}!</h1>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h1>Welcome, {userName}!</h1>
+          <button
+            onClick={() => {
+              localStorage.clear();
+              navigate('/login');
+            }}
+            style={{ padding: '8px 16px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+          >
+            Logout
+          </button>
+        </div>
 
         {/* ================= DASHBOARD SUMMARY CARDS ================= */}
         <div className="dashboard-summary">
@@ -78,7 +151,7 @@ export default function Dashboard() {
 
         {/* ================= TASK LIST ================= */}
         <div className="task-list">
-          {tasks.map((task) => (
+          {tasks.length === 0 ? <p>No tasks found. Add one above!</p> : tasks.map((task) => (
             <div key={task.id} className="task-card">
               <h3>{task.title}</h3>
               <p>Status: {task.status}</p>
@@ -92,6 +165,12 @@ export default function Dashboard() {
                     {s}
                   </button>
                 ))}
+                <button
+                  onClick={() => handleDeleteTask(task.id)}
+                  style={{ backgroundColor: '#dc3545', marginLeft: 'auto' }}
+                >
+                  Delete
+                </button>
               </div>
             </div>
           ))}
