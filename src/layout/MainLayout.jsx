@@ -1,12 +1,12 @@
 import { Routes, Route } from "react-router-dom";
 
-import Header from "./Header";
-import Footer from "./Footer";
-import Hero from "../components/Hero";
-import Login from "../pages/Login";
-import Register from "../pages/Register";
+import Header from "./Header.jsx";
+import Footer from "./Footer.jsx";
+import Hero from "../components/Hero.jsx";
+import Login from "../pages/Login.jsx";
+import Register from "../pages/Register.jsx";
 
-import Dashboard from "../pages/Dashboard"; // <-- added
+import Dashboard from "../pages/Dashboard.jsx"; // <-- added
 
 
 export default function MainLayout() {
