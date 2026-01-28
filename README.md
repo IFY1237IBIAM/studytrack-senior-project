@@ -11,6 +11,8 @@ The goal is to provide a simple, user-friendly alternative to overly complex pro
 **Malcolm Nkomo:**
 "Come what may, and love it."
 
+**Leo Alfred A. Mosquera:**
+"Keep moving forward."
 **Maria Jose Arevalo Narvaez:**  
 "Keep loving. Keep trying. Keep trusting. Keep believing. Keep growing. Heaven is cheering you on today, tomorrow, and forever."
 
