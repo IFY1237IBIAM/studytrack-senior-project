@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
+import MainLayout from "./layout/MainLayout.jsx";
 import "./css/style.css";
 
 import MainLayout from "./layout/MainLayout";

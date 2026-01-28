@@ -21,7 +21,7 @@ export default function Dashboard() {
 
   const fetchTasks = async () => {
     try {
-      const response = await fetch("http://localhost:5001/api/tasks", {
+      const response = await fetch("http://localhost:3000/api/tasks", {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
@@ -38,7 +38,7 @@ export default function Dashboard() {
     if (!newTask.title.trim()) return;
 
     try {
-      const response = await fetch("http://localhost:5001/api/tasks", {
+      const response = await fetch("http://localhost:3000/api/tasks", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -58,10 +58,10 @@ export default function Dashboard() {
 
   const handleStatusChange = async (id, status) => {
     // Optimistic update
-    setTasks(tasks.map((task) => (task.id === id ? { ...task, status } : task)));
+    setTasks(tasks.map((task) => (task._id === id ? { ...task, status } : task)));
 
     try {
-      await fetch(`http://localhost:5001/api/tasks/${id}`, {
+      await fetch(`http://localhost:3000/api/tasks/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -78,13 +78,13 @@ export default function Dashboard() {
     if (!window.confirm("Are you sure you want to delete this task?")) return;
 
     try {
-      const response = await fetch(`http://localhost:5001/api/tasks/${id}`, {
+      const response = await fetch(`http://localhost:3000/api/tasks/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
 
       if (response.ok) {
-        setTasks(tasks.filter(t => t.id !== id));
+        setTasks(tasks.filter(t => t._id !== id));
       }
     } catch (error) {
       console.error("Error deleting task:", error);
@@ -152,21 +152,21 @@ export default function Dashboard() {
         {/* ================= TASK LIST ================= */}
         <div className="task-list">
           {tasks.length === 0 ? <p>No tasks found. Add one above!</p> : tasks.map((task) => (
-            <div key={task.id} className="task-card">
+            <div key={task._id} className="task-card">
               <h3>{task.title}</h3>
               <p>Status: {task.status}</p>
               <div className="task-actions">
                 {["To-Do", "In Progress", "Completed"].map((s) => (
                   <button
                     key={s}
-                    onClick={() => handleStatusChange(task.id, s)}
+                    onClick={() => handleStatusChange(task._id, s)}
                     disabled={task.status === s}
                   >
                     {s}
                   </button>
                 ))}
                 <button
-                  onClick={() => handleDeleteTask(task.id)}
+                  onClick={() => handleDeleteTask(task._id)}
                   style={{ backgroundColor: '#dc3545', marginLeft: 'auto' }}
                 >
                   Delete
