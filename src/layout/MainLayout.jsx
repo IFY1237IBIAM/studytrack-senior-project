@@ -13,14 +13,7 @@ export default function MainLayout() {
   return (
     <>
       <Header />
-
-      <Routes>
-        <Route path="/" element={<Hero />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/dashboard" element={<Dashboard />} /> {/* <-- added */}
-      </Routes>
-
+      <Outlet />
       <Footer />
     </>
   );
