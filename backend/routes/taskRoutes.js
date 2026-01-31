@@ -1,0 +1,70 @@
+import express from "express";
+import Task from "../models/Task.js";
+import Notification from "../models/Notification.js";
+import { protect } from "../middleware/authMiddleware.js";
+
+const router = express.Router();
+
+/**
+ * @route   POST /api/tasks
+ * @desc    Create a new task
+ * @access  Private
+ */
+router.post("/", protect, async (req, res) => {
+  try {
+    const { title, description, status } = req.body;
+
+    const task = await Task.create({
+      title,
+      description,
+      status: status || "Pending",
+      user: req.user._id,
+    });
+
+    // 🔔 Notification when task is created
+    await Notification.create({
+      user: req.user._id,
+      message: `New task "${task.title}" was created`,
+      type: "info",
+    });
+
+    res.status(201).json(task);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+/**
+ * @route   PUT /api/tasks/:id
+ * @desc    Update task status
+ * @access  Private
+ */
+router.put("/:id", protect, async (req, res) => {
+  try {
+    const { status } = req.body;
+
+    const task = await Task.findById(req.params.id);
+
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    task.status = status;
+    await task.save();
+
+    // 🎉 Notification when task is completed
+    if (status === "Completed") {
+      await Notification.create({
+        user: req.user._id,
+        message: `Great job! You completed "${task.title}" 🎉`,
+        type: "success",
+      });
+    }
+
+    res.json(task);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+export default router;

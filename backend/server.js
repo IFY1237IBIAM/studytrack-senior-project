@@ -17,6 +17,7 @@ import addTaskRouter from "./routes/addTaskRouter.js";
 import updateTaskRouter from "./routes/updateTaskRouter.js";
 import deleteTaskRouter from "./routes/deleteTaskRouter.js";
 import generateToken from "./utils/generateToken.js";
+import notificationsRouter from "./routes/notifications.js";
 
 connectDB();
 
@@ -39,6 +40,10 @@ app.get("/", (req, res) => {
 
 // Use registration router
 app.use("/api", registrationRouter);
+
+
+
+app.use("/api/notifications", notificationsRouter);
 
 // Login
 app.use("/api", loginRouter);

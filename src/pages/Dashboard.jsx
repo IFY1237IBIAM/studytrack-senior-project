@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import logoutIcon from "../assets/logout-icon.jpg";
+
+import "../css/style.css";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -8,37 +11,75 @@ export default function Dashboard() {
 
   const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState({ title: "", status: "To-Do" });
-  const [loading, setLoading] = useState(false);
 
-  // Checks if user is logged in
+  // Notifications
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [bellClicked, setBellClicked] = useState(false);
+  const [bellOpen, setBellOpen] = useState(false);
+  const [newNotif, setNewNotif] = useState(false);
+
   useEffect(() => {
     if (!token) {
       navigate("/login");
     } else {
       fetchTasks();
+      fetchNotifications();
     }
   }, [token, navigate]);
 
+  // ================= FETCH TASKS =================
   const fetchTasks = async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/tasks", {
+      const res = await fetch("http://localhost:3000/api/tasks", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const data = await response.json();
-      if (response.ok) {
-        setTasks(data);
-      }
-    } catch (error) {
-      console.error("Error fetching tasks:", error);
+      const data = await res.json();
+      if (res.ok) setTasks(data);
+    } catch (err) {
+      console.error(err);
     }
   };
 
+  // ================= FETCH NOTIFICATIONS =================
+  const fetchNotifications = async () => {
+    try {
+      const res = await fetch("http://localhost:3000/api/notifications", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (res.ok) {
+        const prevLength = notifications.length;
+        setNotifications(data);
+
+        if (!bellClicked) {
+          setUnreadCount(data.length);
+          if (data.length > 0) triggerNewNotifAnimation();
+        } else {
+          const unseen = data.length - prevLength;
+          if (unseen > 0) {
+            setUnreadCount((prev) => prev + unseen);
+            triggerNewNotifAnimation();
+          }
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const triggerNewNotifAnimation = () => {
+    setNewNotif(true);
+    setTimeout(() => setNewNotif(false), 800);
+  };
+
+  // ================= ADD TASK =================
   const handleAddTask = async (e) => {
     e.preventDefault();
     if (!newTask.title.trim()) return;
 
     try {
-      const response = await fetch("http://localhost:3000/api/tasks", {
+      const res = await fetch("http://localhost:3000/api/tasks", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -46,20 +87,21 @@ export default function Dashboard() {
         },
         body: JSON.stringify(newTask),
       });
-      const data = await response.json();
-      if (response.ok) {
+      const data = await res.json();
+      if (res.ok) {
         setTasks([...tasks, data]);
         setNewTask({ title: "", status: "To-Do" });
+
+        await fetchNotifications(); // update notifications immediately
       }
-    } catch (error) {
-      console.error("Error adding task:", error);
+    } catch (err) {
+      console.error(err);
     }
   };
 
+  // ================= UPDATE TASK STATUS =================
   const handleStatusChange = async (id, status) => {
-    // Optimistic update
-    setTasks(tasks.map((task) => (task._id === id ? { ...task, status } : task)));
-
+    setTasks(tasks.map((t) => (t._id === id ? { ...t, status } : t)));
     try {
       await fetch(`http://localhost:3000/api/tasks/${id}`, {
         method: "PUT",
@@ -69,29 +111,53 @@ export default function Dashboard() {
         },
         body: JSON.stringify({ status }),
       });
-    } catch (error) {
-      console.error("Error updating task:", error);
+      await fetchNotifications();
+    } catch (err) {
+      console.error(err);
     }
   };
 
+  // ================= DELETE TASK =================
   const handleDeleteTask = async (id) => {
     if (!window.confirm("Are you sure you want to delete this task?")) return;
-
     try {
-      const response = await fetch(`http://localhost:3000/api/tasks/${id}`, {
+      const res = await fetch(`http://localhost:3000/api/tasks/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      if (response.ok) {
-        setTasks(tasks.filter(t => t._id !== id));
-      }
-    } catch (error) {
-      console.error("Error deleting task:", error);
+      if (res.ok) setTasks(tasks.filter((t) => t._id !== id));
+    } catch (err) {
+      console.error(err);
     }
-  }
+  };
 
-  // Summary counts
+  // ================= TOGGLE BELL =================
+  const toggleBell = () => {
+    setBellOpen(!bellOpen);
+    if (!bellClicked) {
+      setBellClicked(true);
+      setUnreadCount(0); // reset badge on first click
+    }
+  };
+
+  // ================= DELETE NOTIFICATION =================
+  const handleDeleteNotification = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:3000/api/notifications/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const updated = notifications.filter((n) => n._id !== id);
+        setNotifications(updated);
+        setUnreadCount(updated.length); // update count
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // ================= SUMMARY =================
   const totalTasks = tasks.length;
   const completedTasks = tasks.filter((t) => t.status === "Completed").length;
   const inProgressTasks = tasks.filter((t) => t.status === "In Progress").length;
@@ -99,20 +165,54 @@ export default function Dashboard() {
   return (
     <section className="dashboard">
       <div className="container">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="dashboard-header">
           <h1>Welcome, {userName}!</h1>
-          <button
-            onClick={() => {
-              localStorage.clear();
-              navigate('/login');
-            }}
-            style={{ padding: '8px 16px', backgroundColor: '#dc3545', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
-          >
-            Logout
-          </button>
+
+          <div className="dashboard-header-right">
+            {/* Notification Bell */}
+            <div
+              className={`notification-bell ${newNotif ? "wiggle" : ""}`}
+              onClick={toggleBell}
+            >
+              🔔
+              {unreadCount > 0 && <span className="notification-count">{unreadCount}</span>}
+
+              {bellOpen && (
+                <div className="notification-dropdown">
+                  {notifications.length === 0 ? (
+                    <p className="no-notifications">No notifications</p>
+                  ) : (
+                    notifications.map((notif) => (
+                      <div key={notif._id} className="notification-item">
+                        <p>{notif.message}</p>
+                        <button onClick={() => handleDeleteNotification(notif._id)}>✖</button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Logout icon */}
+            {/* Logout icon (using local asset) */}
+<button
+  onClick={() => {
+    localStorage.clear();
+    navigate("/login");
+  }}
+  className="logout-btn"
+>
+  <img 
+    src={logoutIcon} 
+    alt="Logout" 
+    style={{ width: "24px", height: "24px" }} 
+  />
+</button>
+
+          </div>
         </div>
 
-        {/* ================= DASHBOARD SUMMARY CARDS ================= */}
+        {/* Dashboard summary */}
         <div className="dashboard-summary">
           <div className="summary-card">
             <h2>{totalTasks}</h2>
@@ -128,7 +228,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* ================= ADD TASK FORM ================= */}
+        {/* Add Task */}
         <form className="add-task-form" onSubmit={handleAddTask}>
           <input
             type="text"
@@ -138,9 +238,7 @@ export default function Dashboard() {
           />
           <select
             value={newTask.status}
-            onChange={(e) =>
-              setNewTask({ ...newTask, status: e.target.value })
-            }
+            onChange={(e) => setNewTask({ ...newTask, status: e.target.value })}
           >
             <option>To-Do</option>
             <option>In Progress</option>
@@ -149,7 +247,7 @@ export default function Dashboard() {
           <button type="submit">Add Task</button>
         </form>
 
-        {/* ================= TASK LIST ================= */}
+        {/* Task list */}
         <div className="task-list">
           {tasks.length === 0 ? <p>No tasks found. Add one above!</p> : tasks.map((task) => (
             <div key={task._id} className="task-card">
@@ -167,7 +265,7 @@ export default function Dashboard() {
                 ))}
                 <button
                   onClick={() => handleDeleteTask(task._id)}
-                  style={{ backgroundColor: '#dc3545', marginLeft: 'auto' }}
+                  style={{ backgroundColor: "#dc3545", marginLeft: "auto" }}
                 >
                   Delete
                 </button>
