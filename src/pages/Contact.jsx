@@ -1,132 +1,71 @@
 import { useState } from "react";
 
 export default function Contact() {
-  const [form, setForm] = useState({
-    fullName: "",
-    email: "",
-    company: "",
-    message: "",
-  });
+  const [form, setForm] = useState({ name: "", email: "", message: "" });
+  const [status, setStatus] = useState("");
 
-  const handleChange = (e) => {
+  function handleChange(e) {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
-  };
+  }
 
-  const handleSubmit = (e) => {
+  function handleSubmit(e) {
     e.preventDefault();
-    // UI-only for now (Sprint scope). Backend integration later.
-    alert("Message sent! (UI demo — backend integration next sprint)");
-    setForm({ fullName: "", email: "", company: "", message: "" });
-  };
+
+    // Basic validation
+    if (!form.name || !form.email || !form.message) {
+      setStatus("Please fill out all fields.");
+      return;
+    }
+
+    // Mock submit (Sprint 2: UI only)
+    setStatus("Thanks! Your message was submitted (mock).");
+    setForm({ name: "", email: "", message: "" });
+  }
 
   return (
-    <div className="contact">
-      <section className="contact-hero">
-        <div className="container contact-grid">
-          {/* LEFT COLUMN */}
-          <div className="contact-left">
-            <p className="contact-eyebrow">CONTACT US</p>
-            <h1 className="contact-title">Get in touch today</h1>
-            <p className="contact-subtitle">
-              Questions, feedback, or a feature idea? Send us a message and we’ll
-              respond as soon as we can.
-            </p>
+    <div className="page">
+      <h1>Contact</h1>
+      <p>Have a question or feedback? Send us a message.</p>
 
-            <div className="contact-cards">
-              <div className="contact-card">
-                <div className="contact-icon" aria-hidden="true">✉️</div>
-                <div>
-                  <p className="contact-cardLabel">Email</p>
-                  <p className="contact-cardValue">studytrack@team.com</p>
-                </div>
-              </div>
+      <form onSubmit={handleSubmit} className="form">
+        <label>
+          Name
+          <input
+            type="text"
+            name="name"
+            value={form.name}
+            onChange={handleChange}
+            placeholder="Your name"
+          />
+        </label>
 
-              <div className="contact-card">
-                <div className="contact-icon" aria-hidden="true">📞</div>
-                <div>
-                  <p className="contact-cardLabel">Phone</p>
-                  <p className="contact-cardValue">(123) 123-3213</p>
-                </div>
-              </div>
-            </div>
+        <label>
+          Email
+          <input
+            type="email"
+            name="email"
+            value={form.email}
+            onChange={handleChange}
+            placeholder="you@example.com"
+          />
+        </label>
 
-            <div className="contact-social">
-              <p className="contact-socialLabel">Reach out to us on:</p>
-              <div className="contact-socialIcons">
-                <a className="social-btn" href="#" aria-label="Facebook">f</a>
-                <a className="social-btn" href="#" aria-label="X">X</a>
-                <a className="social-btn" href="#" aria-label="Instagram">◎</a>
-                <a className="social-btn" href="#" aria-label="LinkedIn">in</a>
-              </div>
-            </div>
-          </div>
+        <label>
+          Message
+          <textarea
+            name="message"
+            value={form.message}
+            onChange={handleChange}
+            placeholder="Type your message..."
+            rows={5}
+          />
+        </label>
 
-          {/* RIGHT COLUMN */}
-          <div className="contact-right">
-            <form className="contact-form" onSubmit={handleSubmit}>
-              <div className="field">
-                <label htmlFor="fullName">Full Name</label>
-                <input
-                  id="fullName"
-                  name="fullName"
-                  type="text"
-                  placeholder="Your name"
-                  value={form.fullName}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
+        <button type="submit">Send Message</button>
 
-              <div className="field">
-                <label htmlFor="email">Email</label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="Your email address"
-                  value={form.email}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              <div className="field">
-                <label htmlFor="company">Company (optional)</label>
-                <input
-                  id="company"
-                  name="company"
-                  type="text"
-                  placeholder="Company name"
-                  value={form.company}
-                  onChange={handleChange}
-                />
-              </div>
-
-              <div className="field">
-                <label htmlFor="message">Leave us a message</label>
-                <textarea
-                  id="message"
-                  name="message"
-                  placeholder="Write your message here..."
-                  rows="6"
-                  value={form.message}
-                  onChange={handleChange}
-                  required
-                />
-              </div>
-
-              <button className="contact-submit" type="submit">
-                Send Message
-              </button>
-
-              <p className="contact-note">
-                UI demo — backend submission will be added in a later sprint.
-              </p>
-            </form>
-          </div>
-        </div>
-      </section>
+        {status && <p style={{ marginTop: "1rem" }}>{status}</p>}
+      </form>
     </div>
   );
 }
