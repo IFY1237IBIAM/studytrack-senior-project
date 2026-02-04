@@ -18,6 +18,8 @@ import updateTaskRouter from "./routes/updateTaskRouter.js";
 import deleteTaskRouter from "./routes/deleteTaskRouter.js";
 import generateToken from "./utils/generateToken.js";
 import notificationsRouter from "./routes/notifications.js";
+import userRoutes from "./routes/userRoutes.js";
+
 
 connectDB();
 
@@ -44,6 +46,9 @@ app.use("/api", registrationRouter);
 
 
 app.use("/api/notifications", notificationsRouter);
+
+
+app.use("/api", userRoutes);
 
 // Login
 app.use("/api", loginRouter);

@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom"; // <-- useNavigate
+import { Link, useNavigate } from "react-router-dom";
 import heroImage from "../assets/hero-bg.jpg";
 import logo from "../assets/logo.png";
 
 export default function Register() {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
@@ -32,7 +32,6 @@ export default function Register() {
       const data = await response.json();
 
       if (response.ok) {
-        setSuccess("Registration successful!");
         setForm({ name: "", email: "", password: "" });
 
         // Save user info and token
@@ -40,9 +39,12 @@ export default function Register() {
         localStorage.setItem("userName", data.name);
         localStorage.setItem("userId", data.id);
 
+        // Show success interface
+        setSuccess(true);
+
         setTimeout(() => {
           navigate("/dashboard");
-        }, 1500);
+        }, 1600);
       } else {
         setError(data.message || "Registration failed.");
       }
@@ -53,6 +55,19 @@ export default function Register() {
       setLoading(false);
     }
   };
+
+  /* ================= SUCCESS SCREEN ================= */
+  if (success) {
+    return (
+      <section className="login-success-screen">
+        <div className="success-box">
+          <div className="success-check">✓</div>
+          <h2>Registration successful</h2>
+          <p>Setting up your dashboard...</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section
@@ -87,7 +102,6 @@ export default function Register() {
           />
 
           {error && <p className="error-message">{error}</p>}
-          {success && <p className="success-message">{success}</p>}
 
           <button disabled={loading}>
             {loading ? "Registering..." : "Register"}

@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom"; // <-- useNavigate
+import { Link, useNavigate } from "react-router-dom";
 import heroImage from "../assets/hero-banner.png";
 import logo from "../assets/logo.png";
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
@@ -32,7 +32,6 @@ export default function Login() {
       const data = await response.json();
 
       if (response.ok) {
-        setSuccess("Login is successful!");
         setForm({ email: "", password: "" });
 
         // Save user info and token
@@ -40,9 +39,12 @@ export default function Login() {
         localStorage.setItem("userName", data.name);
         localStorage.setItem("userId", data.id);
 
+        // Show success interface
+        setSuccess(true);
+
         setTimeout(() => {
           navigate("/dashboard");
-        }, 1500);
+        }, 1600);
       } else {
         setError(data.message || "Invalid credentials.");
       }
@@ -53,6 +55,21 @@ export default function Login() {
       setLoading(false);
     }
   };
+
+  /* ================= SUCCESS SCREEN ================= */
+  if (success) {
+    return (
+      <section className="login-success-screen">
+        <div className="success-box">
+          <div className="success-check">
+            ✓
+          </div>
+          <h2>Login successful</h2>
+          <p>Redirecting to dashboard...</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section
@@ -82,14 +99,12 @@ export default function Login() {
           />
 
           {error && <p className="error-message">{error}</p>}
-          {success && <p className="success-message">{success}</p>}
 
           <button disabled={loading}>
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
 
-        {/* REGISTER LINK */}
         <p className="login-register">
           Don’t have an account?{" "}
           <Link to="/register" className="register-link">

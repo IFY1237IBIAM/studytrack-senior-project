@@ -35,6 +35,41 @@ router.post("/", protect, async (req, res) => {
 });
 
 /**
+ * @route   GET /api/tasks
+ * @desc    Get tasks with search, filter, pagination
+ * @access  Private
+ */
+router.get("/", protect, async (req, res) => {
+  try {
+    let { page = 1, limit = 10, search = "", status } = req.query;
+    page = Number(page);
+    limit = Number(limit);
+
+    const query = { user: req.user._id }; // only return tasks for the logged-in user
+
+    if (search) {
+      query.title = { $regex: search, $options: "i" }; // case-insensitive search
+    }
+
+    if (status) {
+      query.status = status;
+    }
+
+    const totalCount = await Task.countDocuments(query);
+
+    const tasks = await Task.find(query)
+      .sort({ createdAt: -1 }) // newest first
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    res.json({ tasks, totalCount });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+/**
  * @route   PUT /api/tasks/:id
  * @desc    Update task status
  * @access  Private
