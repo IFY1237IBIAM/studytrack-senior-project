@@ -41,7 +41,11 @@ export default function Register() {
         localStorage.setItem("userId", data.id);
 
         setTimeout(() => {
-          navigate("/dashboard");
+          if (data.role == "admin") {
+            navigate("/admin-dashboard");
+          } else {
+            navigate("/dashboard");
+          }
         }, 1500);
       } else {
         setError(data.message || "Registration failed.");
