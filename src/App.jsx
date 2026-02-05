@@ -9,8 +9,6 @@ import Contact from "./pages/Contact";
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Profile from "./pages/Profile";
-
 
 export default function App() {
   return (
@@ -22,8 +20,6 @@ export default function App() {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/profile" element={<Profile />} />
-
         </Route>
 
         {/* Auth routes (no Header/Footer) */}

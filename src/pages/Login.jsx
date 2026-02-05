@@ -44,7 +44,7 @@ export default function Login() {
 
         setTimeout(() => {
           navigate("/dashboard");
-        }, 1600);
+        }, 1500);
       } else {
         setError(data.message || "Invalid credentials.");
       }
