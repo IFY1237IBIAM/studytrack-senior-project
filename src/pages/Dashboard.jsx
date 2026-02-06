@@ -45,7 +45,7 @@ export default function Dashboard() {
   // ================= FETCH USER PROFILE =================
   const fetchUserProfile = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/users/me", {
+      const res = await fetch("https://studytrack-senior-project-1.onrender.com/api/users/me", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -60,7 +60,7 @@ export default function Dashboard() {
   // ================= FETCH TASKS =================
   const fetchTasks = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/tasks", {
+      const res = await fetch("https://studytrack-senior-project-1.onrender.com/api/tasks", {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -73,7 +73,7 @@ export default function Dashboard() {
   // ================= FETCH NOTIFICATIONS =================
   const fetchNotifications = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/notifications", {
+      const res = await fetch("https://studytrack-senior-project-1.onrender.com/api/notifications", {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -108,7 +108,7 @@ export default function Dashboard() {
     if (!newTask.title.trim()) return;
 
     try {
-      const res = await fetch("http://localhost:3000/api/tasks", {
+      const res = await fetch("https://studytrack-senior-project-1.onrender.com/api/tasks", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -131,7 +131,7 @@ export default function Dashboard() {
   const handleStatusChange = async (id, status) => {
     setTasks(tasks.map((t) => (t._id === id ? { ...t, status } : t)));
     try {
-      await fetch(`http://localhost:3000/api/tasks/${id}`, {
+      await fetch(`https://studytrack-senior-project-1.onrender.com/api/tasks/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -149,7 +149,7 @@ export default function Dashboard() {
   const handleDeleteTask = async (id) => {
     if (!window.confirm("Are you sure you want to delete this task?")) return;
     try {
-      const res = await fetch(`http://localhost:3000/api/tasks/${id}`, {
+      const res = await fetch(`https://studytrack-senior-project-1.onrender.com/api/tasks/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -171,7 +171,7 @@ export default function Dashboard() {
   // ================= DELETE NOTIFICATION =================
   const handleDeleteNotification = async (id) => {
     try {
-      const res = await fetch(`http://localhost:3000/api/notifications/${id}`, {
+      const res = await fetch(`https://studytrack-senior-project-1.onrender.com/api/notifications/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
