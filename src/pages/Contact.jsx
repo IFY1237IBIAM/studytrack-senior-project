@@ -9,7 +9,9 @@ export default function Contact() {
     message: "",
   });
 
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState(""); // error messages
+  const [success, setSuccess] = useState(false); // success screen
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -19,14 +21,38 @@ export default function Contact() {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // Validation
     if (!form.fullName || !form.email || !form.message) {
       setStatus("Please fill out Full Name, Email, and Message.");
       return;
     }
 
-    setStatus("Message sent! (Demo mode)");
-    setForm({ fullName: "", email: "", company: "", message: "" });
+    setStatus("");
+    setLoading(true);
+
+    // Simulate API call
+    setTimeout(() => {
+      setLoading(false);
+      setSuccess(true); // Show success screen
+      setForm({ fullName: "", email: "", company: "", message: "" });
+
+      // Auto-hide success screen after 2 seconds
+      setTimeout(() => setSuccess(false), 2000);
+    }, 1200);
   };
+
+  /* ================= SUCCESS SCREEN ================= */
+  if (success) {
+    return (
+      <section className="login-success-screen">
+        <div className="success-box">
+          <div className="success-check">✓</div>
+          <h2>Message sent!</h2>
+          <p>Thank you for reaching out. We'll get back to you soon.</p>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <main className="contact-page">
@@ -119,11 +145,15 @@ export default function Contact() {
               />
             </div>
 
-            <button className="contact-submit" type="submit">
-              Send Message
+            <button
+              className="contact-submit"
+              type="submit"
+              disabled={loading}
+            >
+              {loading ? "Sending..." : "Send Message"}
             </button>
 
-            {status && <p className="contact-status">{status}</p>}
+            {status && <p className="error-message">{status}</p>}
           </form>
         </section>
       </div>

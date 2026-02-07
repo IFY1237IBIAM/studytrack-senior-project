@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import logoutIcon from "../assets/logout-icon.jpg";
 import profileAvatar from "../assets/profile-avatar.png";
+import notificationIcon from "../assets/notification-icon.png"; // your downloaded icon
+
 
 import "../css/style.css";
 
@@ -24,6 +26,13 @@ export default function Dashboard() {
   const [bellClicked, setBellClicked] = useState(false);
   const [bellOpen, setBellOpen] = useState(false);
   const [newNotif, setNewNotif] = useState(false);
+  // Delete confirmation modal
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState(null);
+
+
+  // ✅ VIEW STATE
+  const [activeView, setActiveView] = useState("dashboard");
 
   // User profile
   const [user, setUser] = useState(null);
@@ -36,9 +45,7 @@ export default function Dashboard() {
         fetchTasks(),
         fetchNotifications(),
         fetchUserProfile(),
-      ]).finally(() => {
-        setIsLoading(false);
-      });
+      ]).finally(() => setIsLoading(false));
     }
   }, [token, navigate]);
 
@@ -49,6 +56,8 @@ export default function Dashboard() {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+      const res = await fetch("http://localhost:3000/api/users/me", {
+        headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
       if (res.ok) setUser(data);
@@ -127,7 +136,7 @@ export default function Dashboard() {
     }
   };
 
-  // ================= UPDATE TASK STATUS =================
+  // ================= UPDATE TASK =================
   const handleStatusChange = async (id, status) => {
     setTasks(tasks.map((t) => (t._id === id ? { ...t, status } : t)));
     try {
@@ -145,17 +154,35 @@ export default function Dashboard() {
     }
   };
 
-  // ================= DELETE TASK =================
-  const handleDeleteTask = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this task?")) return;
+  /* ================= DELETE TASK ================= */
+  const openDeleteModal = (id) => {
+    setTaskToDelete(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteTask = async () => {
     try {
       const res = await fetch(`https://studytrack-senior-project-1.onrender.com/api/tasks/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) setTasks(tasks.filter((t) => t._id !== id));
+      const res = await fetch(
+        `http://localhost:3000/api/tasks/${taskToDelete}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      if (res.ok) {
+        setTasks(tasks.filter((t) => t._id !== taskToDelete));
+      }
     } catch (err) {
       console.error(err);
+    } finally {
+      setShowDeleteModal(false);
+      setTaskToDelete(null);
     }
   };
 
@@ -167,7 +194,6 @@ export default function Dashboard() {
       setUnreadCount(0);
     }
   };
-
   // ================= DELETE NOTIFICATION =================
   const handleDeleteNotification = async (id) => {
     try {
@@ -190,11 +216,11 @@ export default function Dashboard() {
   const completedTasks = tasks.filter((t) => t.status === "Completed").length;
   const inProgressTasks = tasks.filter((t) => t.status === "In Progress").length;
 
-  // ================= PAGINATION LOGIC =================
+  // ================= PAGINATION =================
   const totalPages = Math.ceil(tasks.length / TASKS_PER_PAGE);
   const startIndex = (currentPage - 1) * TASKS_PER_PAGE;
   const endIndex = startIndex + TASKS_PER_PAGE;
-  const currentTasks = tasks.slice(startIndex, endIndex);
+  const currentTasks = tasks.slice(startIndex, startIndex + TASKS_PER_PAGE);
 
   useEffect(() => {
     if (currentPage > totalPages && totalPages > 0) {
@@ -237,106 +263,140 @@ export default function Dashboard() {
   return (
     <section className="dashboard">
       <div className="container">
+        {/* ================= HEADER ================= */}
         <div className="dashboard-header">
-          <div className="profile-trigger" onClick={() => navigate("/profile")}>
-            <img
-              src={profileAvatar}
-              alt="User Profile"
-              className="profile-avatar"
-            />
-            <span className="profile-username">
-              {user ? user.name : "Loading..."}
-            </span>
-          </div>
+          <div
+  className="profile-trigger"
+  onClick={() => navigate("/profile", { state: { user } })}
+>
+  <img src={profileAvatar} alt="Profile" className="profile-avatar" />
+  <span>{user?.name}</span>
+</div>
+
 
           <div className="dashboard-header-right">
-            <div
-              className={`notification-bell ${newNotif ? "wiggle" : ""}`}
-              onClick={toggleBell}
-            >
-              🔔
-              {unreadCount > 0 && (
-                <span className="notification-count">{unreadCount}</span>
-              )}
+    {/* NOTIFICATION BELL */}
+    <div
+      className={`notification-bell ${newNotif ? "wiggle" : ""}`}
+      onClick={toggleBell}
+    >
+      <img 
+    src={notificationIcon} 
+    alt="Notifications" 
+    className="notification-icon"
+  />
+      {unreadCount > 0 && (
+        <span className="notification-count">{unreadCount}</span>
+      )}
 
-              {bellOpen && (
-                <div className="notification-dropdown">
-                  {notifications.length === 0 ? (
-                    <p className="no-notifications">No notifications</p>
-                  ) : (
-                    notifications.map((notif) => (
-                      <div key={notif._id} className="notification-item">
-                        <p>{notif.message}</p>
-                        <button
-                          onClick={() =>
-                            handleDeleteNotification(notif._id)
-                          }
-                        >
-                          ✖
-                        </button>
-                      </div>
-                    ))
-                  )}
-                </div>
-              )}
-            </div>
+      {bellOpen && (
+        <div className="notification-dropdown">
+          {notifications.length === 0 ? (
+            <p className="no-notifications">No notifications</p>
+          ) : (
+            notifications.map((notif) => (
+              <div key={notif._id} className="notification-item">
+                <p>{notif.message}</p>
+                <button
+                  onClick={() =>
+                    handleDeleteNotification(notif._id)
+                  }
+                >
+                  ✖
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+    </div>
 
             <button
-              onClick={() => {
-                localStorage.clear();
-                navigate("/login");
-              }}
-              className="logout-btn"
+              className="settings-btn"
+              onClick={() => setActiveView("settings")}
             >
-              <img
-                src={logoutIcon}
-                alt="Logout"
-                style={{ width: "24px", height: "24px" }}
-              />
+              ⚙️
             </button>
           </div>
         </div>
 
-        {/* Dashboard summary */}
-        <div className="dashboard-summary">
-          <div className="summary-card">
-            <h2>{totalTasks}</h2>
-            <p>Total Tasks</p>
-          </div>
-          <div className="summary-card">
-            <h2>{inProgressTasks}</h2>
-            <p>In Progress</p>
-          </div>
-          <div className="summary-card">
-            <h2>{completedTasks}</h2>
-            <p>Completed</p>
-          </div>
-        </div>
+        {/* ================= VIEW SWITCH ================= */}
+        {activeView === "settings" ? (
+          /* ================= SETTINGS VIEW ================= */
+          <div className="settings-page">
+            <div className="settings-header">
+              <button
+                className="back-btn"
+                onClick={() => setActiveView("dashboard")}
+              >
+                ← Back
+              </button>
+              <h2>Settings</h2>
+            </div>
 
-        {/* Add Task */}
-        <form className="add-task-form" onSubmit={handleAddTask}>
-          <input
-            type="text"
-            placeholder="Enter new task"
-            value={newTask.title}
-            onChange={(e) =>
-              setNewTask({ ...newTask, title: e.target.value })
-            }
-          />
-          <select
-            value={newTask.status}
-            onChange={(e) =>
-              setNewTask({ ...newTask, status: e.target.value })
-            }
-          >
-            <option>To-Do</option>
-            <option>In Progress</option>
-            <option>Completed</option>
-          </select>
-          <button type="submit">Add Task</button>
-        </form>
+            <div className="settings-panel">
+              <h3>Account</h3>
 
-        {/* Task list */}
+              <div className="settings-item danger">
+                <strong>Delete Account</strong>
+                <button className="delete-btn">Delete</button>
+              </div>
+
+              <h3>Session</h3>
+
+              <button
+                className="logout-setting-btn"
+                onClick={() => {
+                  localStorage.clear();
+                  navigate("/login");
+                }}
+              >
+                <img src={logoutIcon} alt="Logout" />
+                Sign out
+              </button>
+            </div>
+          </div>
+        ) : (
+          /* ================= DASHBOARD VIEW ================= */
+          <>
+            <div className="dashboard-summary">
+              <div className="summary-card">
+                <h2>{totalTasks}</h2>
+                <p>Total Tasks</p>
+              </div>
+              <div className="summary-card">
+                <h2>{inProgressTasks}</h2>
+                <p>In Progress</p>
+              </div>
+              <div className="summary-card">
+                <h2>{completedTasks}</h2>
+                <p>Completed</p>
+              </div>
+            </div>
+
+            <form className="add-task-form" onSubmit={handleAddTask}>
+              <input
+                type="text"
+                placeholder="New task"
+                value={newTask.title}
+                onChange={(e) =>
+                  setNewTask({ ...newTask, title: e.target.value })
+                }
+              />
+              <select
+                value={newTask.status}
+                onChange={(e) =>
+                  setNewTask({ ...newTask, status: e.target.value })
+                }
+              >
+                <option>To-Do</option>
+                <option>In Progress</option>
+                <option>Completed</option>
+              </select>
+              <button>Add Task</button>
+            </form>
+
+            {/* Task list */}
         <div className="task-list">
           {currentTasks.length === 0 ? (
             <p>No tasks found. Add one above!</p>
@@ -358,49 +418,82 @@ export default function Dashboard() {
                     </button>
                   ))}
                   <button
-                    onClick={() => handleDeleteTask(task._id)}
-                    style={{
-                      backgroundColor: "#dc3545",
-                      marginLeft: "auto",
-                    }}
-                  >
-                    Delete
-                  </button>
+  type="button"
+  onClick={() => openDeleteModal(task._id)}
+  style={{ backgroundColor: "#dc3545", marginLeft: "auto" }}
+>
+  Delete
+</button>
+
+
                 </div>
               </div>
             ))
           )}
         </div>
+            {/* ================= PAGINATION ================= */}
+            {tasks.length > TASKS_PER_PAGE && (
+              <div className="pagination">
+                <button
+                  onClick={() =>
+                    setCurrentPage((p) => Math.max(p - 1, 1))
+                  }
+                  disabled={currentPage === 1}
+                >
+                  ← Previous
+                </button>
 
-        {/* Pagination */}
-        {tasks.length > TASKS_PER_PAGE && (
-          <div className="pagination">
-            <button
-              onClick={() =>
-                setCurrentPage((p) => Math.max(p - 1, 1))
-              }
-              disabled={currentPage === 1}
-            >
-              ← Previous
-            </button>
+                <span className="page-indicator">
+                  Page {currentPage} of {totalPages}
+                </span>
 
-            <span className="page-indicator">
-              Page {currentPage} of {totalPages}
-            </span>
+                <button
+                  onClick={() =>
+                    setCurrentPage((p) =>
+                      Math.min(p + 1, totalPages)
+                    )
+                  }
+                  disabled={currentPage === totalPages}
+                >
+                  Next →
+                </button>
+              </div>
 
-            <button
-              onClick={() =>
-                setCurrentPage((p) =>
-                  Math.min(p + 1, totalPages)
-                )
-              }
-              disabled={currentPage === totalPages}
-            >
-              Next →
-            </button>
-          </div>
+            )}
+          </>
         )}
       </div>
+    {/* DELETE MODAL */}
+      {showDeleteModal && (
+        <div
+          className="modal-overlay"
+          onClick={() => setShowDeleteModal(false)}
+        >
+          <div
+            className="modal-box"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3>Delete Task</h3>
+            <p>Are you sure?</p>
+
+            <div className="modal-actions">
+              <button
+                type="button"
+                onClick={() => setShowDeleteModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="modal-delete"
+                onClick={confirmDeleteTask}
+              >
+                Yes, Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
