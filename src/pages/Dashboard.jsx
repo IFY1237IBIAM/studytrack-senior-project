@@ -258,7 +258,8 @@ export default function Dashboard() {
         <div className="dashboard-header">
           <div
   className="profile-trigger"
-  onClick={() => navigate("/profile", { state: { user } })}
+  onClick={() => navigate("/profile", { state: { user } })
+}
 >
   <img src={profileAvatar} alt="Profile" className="profile-avatar" />
   <span>{user?.name}</span>
