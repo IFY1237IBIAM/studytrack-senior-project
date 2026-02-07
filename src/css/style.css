@@ -1665,3 +1665,192 @@ body { font-size: 1rem; line-height: 1.6; }
   .contact-grid { grid-template-columns: 1fr; }
   .contact-formCard { margin-top: 1rem; }
 }
+
+/* ================= ADMIN DASHBOARD ================= */
+.admin-dashboard { padding: 2.5rem 0 3.5rem; }
+
+.admin-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.admin-kicker {
+  font-size: 0.85rem;
+  letter-spacing: 0.18em;
+  font-weight: 800;
+  color: #6b3cff;
+  margin: 0 0 0.75rem;
+}
+
+.admin-title {
+  font-size: clamp(2rem, 3vw, 2.7rem);
+  margin: 0 0 0.4rem;
+  color: #1d1d1d;
+}
+
+.admin-subtitle {
+  margin: 0;
+  color: #6b6b6b;
+  max-width: 60ch;
+}
+
+.admin-filters {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.admin-search,
+.admin-select {
+  padding: 0.75rem 0.85rem;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.18);
+  font-size: 1rem;
+  background: #fff;
+}
+
+.admin-search { width: min(320px, 78vw); }
+
+.admin-card {
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 18px;
+  padding: 1.25rem;
+  box-shadow: 0 14px 30px rgba(0,0,0,0.06);
+}
+
+.admin-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.admin-card-title { margin: 0; font-size: 1.25rem; color: #333; }
+
+.admin-count {
+  font-weight: 800;
+  color: #555;
+  background: rgba(107, 60, 255, 0.10);
+  border: 1px solid rgba(107, 60, 255, 0.18);
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+}
+
+.admin-table-wrap { overflow-x: auto; }
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 820px;
+}
+
+.admin-table th,
+.admin-table td {
+  text-align: left;
+  padding: 0.9rem 0.75rem;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+  vertical-align: middle;
+}
+
+.admin-table th {
+  font-size: 0.95rem;
+  color: #555;
+  font-weight: 800;
+}
+
+.admin-usercell { display: flex; align-items: center; gap: 0.75rem; }
+
+.admin-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  color: #6b3cff;
+  background: rgba(107, 60, 255, 0.12);
+}
+
+.admin-name { font-weight: 900; color: #2b2b2b; }
+.admin-email { font-size: 0.95rem; color: #7a7a7a; }
+
+.tag {
+  display: inline-block;
+  font-size: 0.85rem;
+  font-weight: 800;
+  padding: 0.35rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,0.10);
+  background: #fff;
+  color: #444;
+}
+.tag--purple { border-color: rgba(107,60,255,0.35); background: rgba(107,60,255,0.10); color: #6b3cff; }
+.tag--green { border-color: rgba(34,197,94,0.35); background: rgba(34,197,94,0.12); color: #15803d; }
+.tag--gray  { border-color: rgba(100,116,139,0.35); background: rgba(100,116,139,0.10); color: #475569; }
+
+.flag-row { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.flag-pill {
+  font-size: 0.8rem;
+  font-weight: 800;
+  padding: 0.3rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(255, 99, 132, 0.12);
+  border: 1px solid rgba(255, 99, 132, 0.22);
+  color: #b42340;
+}
+
+.admin-actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
+
+.btn {
+  padding: 0.55rem 0.8rem;
+  border-radius: 10px;
+  font-weight: 900;
+  border: 1px solid rgba(0,0,0,0.12);
+  background: #fff;
+  cursor: pointer;
+}
+.btn--outline { background: #fff; }
+.btn--danger {
+  background: rgba(220, 53, 69, 0.12);
+  border-color: rgba(220, 53, 69, 0.25);
+  color: #b42340;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.admin-actions-col { text-align: right; }
+
+.admin-empty {
+  padding: 1.25rem;
+  color: #666;
+  text-align: center;
+}
+
+.muted { color: #888; }
+
+.admin-note {
+  margin-top: 1rem;
+  color: #666;
+  font-size: 0.95rem;
+}
+.admin-note code {
+  background: rgba(0,0,0,0.06);
+  padding: 0.12rem 0.35rem;
+  border-radius: 6px;
+}
+
+/* responsive */
+@media (max-width: 900px) {
+  .admin-top { align-items: flex-start; }
+}
