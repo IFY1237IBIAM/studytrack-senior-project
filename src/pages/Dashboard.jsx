@@ -50,22 +50,19 @@ export default function Dashboard() {
   }, [token, navigate]);
 
   // ================= FETCH USER PROFILE =================
-  const fetchUserProfile = async () => {
-    try {
-      const res = await fetch("https://studytrack-senior-project-1.onrender.com/api/users/me", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      const res = await fetch("http://localhost:3000/api/users/me", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (res.ok) setUser(data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
+const fetchUserProfile = async () => {
+  try {
+    const res = await fetch("https://studytrack-senior-project-1.onrender.com/api/users/me", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = await res.json();
+    if (res.ok) setUser(data);
+  } catch (err) {
+    console.error(err);
+  }
+};
   // ================= FETCH TASKS =================
   const fetchTasks = async () => {
     try {
@@ -160,31 +157,26 @@ export default function Dashboard() {
     setShowDeleteModal(true);
   };
 
-  const confirmDeleteTask = async () => {
-    try {
-      const res = await fetch(`https://studytrack-senior-project-1.onrender.com/api/tasks/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) setTasks(tasks.filter((t) => t._id !== id));
-      const res = await fetch(
-        `http://localhost:3000/api/tasks/${taskToDelete}`,
-        {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
+  // ================= DELETE TASK =================
+const confirmDeleteTask = async () => {
+  if (!taskToDelete) return;
 
-      if (res.ok) {
-        setTasks(tasks.filter((t) => t._id !== taskToDelete));
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setShowDeleteModal(false);
-      setTaskToDelete(null);
+  try {
+    const res = await fetch(`https://studytrack-senior-project-1.onrender.com/api/tasks/${taskToDelete}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (res.ok) {
+      setTasks(tasks.filter((t) => t._id !== taskToDelete));
     }
-  };
+  } catch (err) {
+    console.error(err);
+  } finally {
+    setShowDeleteModal(false);
+    setTaskToDelete(null);
+  }
+};
 
   // ================= TOGGLE BELL =================
   const toggleBell = () => {
