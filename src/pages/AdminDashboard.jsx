@@ -1,277 +1,230 @@
-import { useState, useEffect } from "react";
+// src/pages/AdminDashboard.jsx
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import logoutIcon from "../assets/logout-icon.jpg";
 
-import "../css/style.css";
+const MOCK_USERS = [
+  {
+    id: "u1",
+    name: "Alex Johnson",
+    email: "alex@example.com",
+    role: "user",
+    status: "active",
+    lastActive: "2026-02-01",
+    flags: [],
+  },
+  {
+    id: "u2",
+    name: "Maria Gomez",
+    email: "maria@example.com",
+    role: "user",
+    status: "active",
+    lastActive: "2025-12-10",
+    flags: ["inactive"],
+  },
+  {
+    id: "u3",
+    name: "Chris Lee",
+    email: "chris@example.com",
+    role: "user",
+    status: "active",
+    lastActive: "2026-01-28",
+    flags: ["abuse"],
+  },
+  {
+    id: "u4",
+    name: "Admin User",
+    email: "admin@example.com",
+    role: "admin",
+    status: "active",
+    lastActive: "2026-02-07",
+    flags: [],
+  },
+];
 
-export default function Dashboard() {
+export default function AdminDashboard() {
   const navigate = useNavigate();
-  const userName = localStorage.getItem("userName") || "Student";
+
+  // Frontend-only guard (Leo will wire real role later)
   const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role"); // expected: "admin"
 
-  const [tasks, setTasks] = useState([]);
-  const [newTask, setNewTask] = useState({ title: "", status: "To-Do" });
-
-  // Notifications
-  const [notifications, setNotifications] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
-  const [bellClicked, setBellClicked] = useState(false);
-  const [bellOpen, setBellOpen] = useState(false);
-  const [newNotif, setNewNotif] = useState(false);
+  const [users, setUsers] = useState(MOCK_USERS);
+  const [query, setQuery] = useState("");
+  const [flagFilter, setFlagFilter] = useState("all");
 
   useEffect(() => {
     if (!token) {
       navigate("/login");
-    } else {
-      fetchTasks();
-      fetchNotifications();
+      return;
     }
-  }, [token, navigate]);
+    // If role exists and isn't admin, send them away
+    if (role && role !== "admin") {
+      navigate("/dashboard");
+    }
+  }, [token, role, navigate]);
 
-  // ================= FETCH TASKS =================
-  const fetchTasks = async () => {
-    try {
-      const res = await fetch("https://studytrack-senior-project-1.onrender.com/api/tasks", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (res.ok) setTasks(data);
-    } catch (err) {
-      console.error(err);
-    }
+  const filteredUsers = useMemo(() => {
+    const q = query.trim().toLowerCase();
+
+    return users.filter((u) => {
+      const matchesQuery =
+        !q ||
+        u.name.toLowerCase().includes(q) ||
+        u.email.toLowerCase().includes(q);
+
+      const matchesFlag =
+        flagFilter === "all" ? true : (u.flags || []).includes(flagFilter);
+
+      return matchesQuery && matchesFlag;
+    });
+  }, [users, query, flagFilter]);
+
+  // UI-only actions (backend will be connected by Leo)
+  const handleDisable = (id) => {
+    setUsers((prev) =>
+      prev.map((u) => (u.id === id ? { ...u, status: "disabled" } : u))
+    );
   };
 
-  // ================= FETCH NOTIFICATIONS =================
-  const fetchNotifications = async () => {
-    try {
-      const res = await fetch("https://studytrack-senior-project-1.onrender.com/api/notifications", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (res.ok) {
-        const prevLength = notifications.length;
-        setNotifications(data);
-
-        if (!bellClicked) {
-          setUnreadCount(data.length);
-          if (data.length > 0) triggerNewNotifAnimation();
-        } else {
-          const unseen = data.length - prevLength;
-          if (unseen > 0) {
-            setUnreadCount((prev) => prev + unseen);
-            triggerNewNotifAnimation();
-          }
-        }
-      }
-    } catch (err) {
-      console.error(err);
-    }
+  const handleDelete = (id) => {
+    if (!window.confirm("Delete this user? (UI only)")) return;
+    setUsers((prev) => prev.filter((u) => u.id !== id));
   };
-
-  const triggerNewNotifAnimation = () => {
-    setNewNotif(true);
-    setTimeout(() => setNewNotif(false), 800);
-  };
-
-  // ================= ADD TASK =================
-  const handleAddTask = async (e) => {
-    e.preventDefault();
-    if (!newTask.title.trim()) return;
-
-    try {
-      const res = await fetch("https://studytrack-senior-project-1.onrender.com/api/tasks", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(newTask),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setTasks([...tasks, data]);
-        setNewTask({ title: "", status: "To-Do" });
-
-        await fetchNotifications(); // update notifications immediately
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  // ================= UPDATE TASK STATUS =================
-  const handleStatusChange = async (id, status) => {
-    setTasks(tasks.map((t) => (t._id === id ? { ...t, status } : t)));
-    try {
-      await fetch(`https://studytrack-senior-project-1.onrender.com/api/tasks/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ status }),
-      });
-      await fetchNotifications();
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  // ================= DELETE TASK =================
-  const handleDeleteTask = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this task?")) return;
-    try {
-      const res = await fetch(`https://studytrack-senior-project-1.onrender.com/api/tasks/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) setTasks(tasks.filter((t) => t._id !== id));
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  // ================= TOGGLE BELL =================
-  const toggleBell = () => {
-    setBellOpen(!bellOpen);
-    if (!bellClicked) {
-      setBellClicked(true);
-      setUnreadCount(0); // reset badge on first click
-    }
-  };
-
-  // ================= DELETE NOTIFICATION =================
-  const handleDeleteNotification = async (id) => {
-    try {
-      const res = await fetch(`https://studytrack-senior-project-1.onrender.com/api/notifications/${id}`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const updated = notifications.filter((n) => n._id !== id);
-        setNotifications(updated);
-        setUnreadCount(updated.length); // update count
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  // ================= SUMMARY =================
-  const totalTasks = tasks.length;
-  const completedTasks = tasks.filter((t) => t.status === "Completed").length;
-  const inProgressTasks = tasks.filter((t) => t.status === "In Progress").length;
 
   return (
-    <section className="dashboard">
+    <section className="admin-dashboard">
       <div className="container">
-        <div className="dashboard-header">
-          <h1>Admin Dashboard - Welcome, {userName}!</h1>
+        <div className="admin-top">
+          <div>
+            <p className="admin-kicker">ADMIN</p>
+            <h1 className="admin-title">Admin Dashboard</h1>
+            <p className="admin-subtitle">
+              View users, review flags, and take action (UI only — backend wiring next).
+            </p>
+          </div>
 
-          <div className="dashboard-header-right">
-            {/* Notification Bell */}
-            <div
-              className={`notification-bell ${newNotif ? "wiggle" : ""}`}
-              onClick={toggleBell}
+          <div className="admin-filters">
+            <input
+              className="admin-search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search by name or email…"
+            />
+
+            <select
+              className="admin-select"
+              value={flagFilter}
+              onChange={(e) => setFlagFilter(e.target.value)}
             >
-              🔔
-              {unreadCount > 0 && <span className="notification-count">{unreadCount}</span>}
+              <option value="all">All users</option>
+              <option value="inactive">Flagged: Inactive</option>
+              <option value="abuse">Flagged: Abuse</option>
+              <option value="policy">Flagged: Policy</option>
+            </select>
+          </div>
+        </div>
 
-              {bellOpen && (
-                <div className="notification-dropdown">
-                  {notifications.length === 0 ? (
-                    <p className="no-notifications">No notifications</p>
-                  ) : (
-                    notifications.map((notif) => (
-                      <div key={notif._id} className="notification-item">
-                        <p>{notif.message}</p>
-                        <button onClick={() => handleDeleteNotification(notif._id)}>✖</button>
+        <div className="admin-card">
+          <div className="admin-card-head">
+            <h2 className="admin-card-title">Users</h2>
+            <span className="admin-count">{filteredUsers.length} shown</span>
+          </div>
+
+          <div className="admin-table-wrap">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Last Active</th>
+                  <th>Flags</th>
+                  <th className="admin-actions-col">Actions</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {filteredUsers.map((u) => (
+                  <tr key={u.id}>
+                    <td>
+                      <div className="admin-usercell">
+                        <div className="admin-avatar">
+                          {u.name?.[0]?.toUpperCase() || "U"}
+                        </div>
+                        <div>
+                          <div className="admin-name">{u.name}</div>
+                          <div className="admin-email">{u.email}</div>
+                        </div>
                       </div>
-                    ))
-                  )}
-                </div>
-              )}
-            </div>
+                    </td>
 
-            {/* Logout icon */}
-            {/* Logout icon (using local asset) */}
-            <button
-              onClick={() => {
-                localStorage.clear();
-                navigate("/login");
-              }}
-              className="logout-btn"
-            >
-              <img
-                src={logoutIcon}
-                alt="Logout"
-                style={{ width: "24px", height: "24px" }}
-              />
-            </button>
+                    <td>
+                      <span className={`tag ${u.role === "admin" ? "tag--purple" : ""}`}>
+                        {u.role}
+                      </span>
+                    </td>
 
-          </div>
-        </div>
+                    <td>
+                      <span className={`tag ${u.status === "disabled" ? "tag--gray" : "tag--green"}`}>
+                        {u.status}
+                      </span>
+                    </td>
 
-        {/* Dashboard summary */}
-        <div className="dashboard-summary">
-          <div className="summary-card">
-            <h2>{totalTasks}</h2>
-            <p>Total Tasks</p>
-          </div>
-          <div className="summary-card">
-            <h2>{inProgressTasks}</h2>
-            <p>In Progress</p>
-          </div>
-          <div className="summary-card">
-            <h2>{completedTasks}</h2>
-            <p>Completed</p>
-          </div>
-        </div>
+                    <td>{u.lastActive}</td>
 
-        {/* Add Task */}
-        <form className="add-task-form" onSubmit={handleAddTask}>
-          <input
-            type="text"
-            placeholder="Enter new task"
-            value={newTask.title}
-            onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-          />
-          <select
-            value={newTask.status}
-            onChange={(e) => setNewTask({ ...newTask, status: e.target.value })}
-          >
-            <option>To-Do</option>
-            <option>In Progress</option>
-            <option>Completed</option>
-          </select>
-          <button type="submit">Add Task</button>
-        </form>
+                    <td>
+                      {(u.flags || []).length ? (
+                        <div className="flag-row">
+                          {u.flags.map((f) => (
+                            <span key={f} className="flag-pill">{f}</span>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="muted">—</span>
+                      )}
+                    </td>
 
-        {/* Task list */}
-        <div className="task-list">
-          {tasks.length === 0 ? <p>No tasks found. Add one above!</p> : tasks.map((task) => (
-            <div key={task._id} className="task-card">
-              <h3>{task.title}</h3>
-              <p>Status: {task.status}</p>
-              <div className="task-actions">
-                {["To-Do", "In Progress", "Completed"].map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => handleStatusChange(task._id, s)}
-                    disabled={task.status === s}
-                  >
-                    {s}
-                  </button>
+                    <td className="admin-actions-col">
+                      <div className="admin-actions">
+                        <button
+                          className="btn btn--outline"
+                          onClick={() => handleDisable(u.id)}
+                          disabled={u.status === "disabled"}
+                        >
+                          Disable
+                        </button>
+
+                        <button
+                          className="btn btn--danger"
+                          onClick={() => handleDelete(u.id)}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
                 ))}
-                <button
-                  onClick={() => handleDeleteTask(task._id)}
-                  style={{ backgroundColor: "#dc3545", marginLeft: "auto" }}
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-          ))}
+
+                {!filteredUsers.length && (
+                  <tr>
+                    <td colSpan="6" className="admin-empty">
+                      No users match your search/filter.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          <p className="admin-note">
+            Backend contract for Leo:
+            <br />
+            Route: <code>/admin/dashboard</code>
+            <br />
+            Expected user fields: <code>id</code>, <code>name</code>, <code>email</code>, <code>role</code>, <code>status</code>, <code>lastActive</code>, <code>flags[]</code>
+            <br />
+            Actions triggered: <code>disableUser(id)</code>, <code>deleteUser(id)</code>
+          </p>
         </div>
       </div>
     </section>

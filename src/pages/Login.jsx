@@ -38,12 +38,19 @@ export default function Login() {
         localStorage.setItem("token", data.token);
         localStorage.setItem("userName", data.name);
         localStorage.setItem("userId", data.id);
+        localStorage.setItem("role", data.role || "user");
+
 
         // Show success interface
         setSuccess(true);
 
         setTimeout(() => {
-          navigate("/dashboard");
+          const role = data.role || "user";
+          if (role === "admin") {
+            navigate("/admin/dashboard");
+          } else {
+            navigate("/dashboard");
+          }
         }, 1500);
       } else {
         setError(data.message || "Invalid credentials.");
