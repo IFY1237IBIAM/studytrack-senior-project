@@ -2315,3 +2315,145 @@ body {
     font-size: 1.2rem;
   }
 }
+
+/* ================= FOOTER LEGAL ================= */
+.footer-legal {
+  margin-top: 2.4rem;
+  padding-top: 1.6rem;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  display: flex;
+  justify-content: center;
+  gap: .8rem;
+  font-size: 1.3rem;
+}
+
+.footer-legal a {
+  color: #e5e7eb;
+  font-weight: 500;
+}
+
+.footer-legal a:hover {
+  text-decoration: underline;
+}
+
+.footer-legal span {
+  color: #94a3b8;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .footer-legal {
+    flex-wrap: wrap;
+    gap: .6rem;
+  }
+}
+/* =========================================================
+   LEGAL PAGES (Privacy & Terms)
+   ========================================================= */
+
+.legal-page {
+  padding: 2.75rem 0 3.75rem;
+}
+
+/* ---------- Header ---------- */
+.legal-header {
+  max-width: 720px;
+  margin: 0 auto 2.2rem;
+  text-align: center;
+}
+
+.legal-kicker {
+  font-size: 0.8rem;
+  letter-spacing: 0.18em;
+  font-weight: 800;
+  color: #6b3cff; /* app purple accent */
+  margin-bottom: 0.75rem;
+}
+
+.legal-title {
+  font-size: clamp(2.1rem, 3.4vw, 2.8rem);
+  line-height: 1.1;
+  margin: 0 0 0.75rem;
+  color: #1d1d1d;
+}
+
+.legal-lead {
+  font-size: 1rem;
+  line-height: 1.65;
+  color: #6b6b6b;
+  max-width: 60ch;
+  margin: 0 auto;
+}
+
+/* ---------- Card ---------- */
+.legal-card {
+  max-width: 860px;
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 2rem 2.25rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.06);
+}
+
+/* Section headings */
+.legal-card h3 {
+  font-size: 1.25rem;
+  margin: 1.6rem 0 0.6rem;
+  color: #2b2b2b;
+}
+
+.legal-card h3:first-of-type {
+  margin-top: 0;
+}
+
+/* Paragraph text */
+.legal-card p {
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: #5f5f5f;
+  max-width: 70ch;
+}
+
+/* Footer note */
+.legal-note {
+  margin-top: 2rem;
+  font-size: 0.85rem;
+  color: #8a8a8a;
+  font-weight: 700;
+}
+
+/* =========================================================
+   MOBILE RESPONSIVENESS
+   ========================================================= */
+
+@media (max-width: 768px) {
+  .legal-page {
+    padding: 2.2rem 0 3rem;
+  }
+
+  .legal-header {
+    margin-bottom: 1.75rem;
+  }
+
+  .legal-title {
+    font-size: 2rem;
+  }
+
+  .legal-lead {
+    font-size: 0.95rem;
+  }
+
+  .legal-card {
+    padding: 1.5rem 1.4rem;
+    border-radius: 14px;
+  }
+
+  .legal-card h3 {
+    font-size: 1.15rem;
+  }
+
+  .legal-card p {
+    font-size: 0.9rem;
+  }
+}

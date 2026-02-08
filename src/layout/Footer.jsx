@@ -1,4 +1,5 @@
 // src/layout/Footer.jsx
+import { Link } from "react-router-dom";
 import logo from "../assets/logo.png";
 import facebook from "../assets/facebook.svg";
 import instagram from "../assets/instagram.svg";
@@ -76,6 +77,13 @@ export default function Footer() {
               </address>
             </li>
           </ul>
+        </div>
+
+        {/* LEGAL LINKS (NEW – MODERN STYLE) */}
+        <div className="footer-legal">
+          <Link to="/privacy">Privacy Policy</Link>
+          <span>•</span>
+          <Link to="/terms">Terms of Service</Link>
         </div>
 
       </div>
