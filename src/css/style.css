@@ -2324,7 +2324,7 @@ body {
   display: flex;
   justify-content: center;
   gap: .8rem;
-  font-size: 1.3rem;
+  font-size: 1.2rem;
 }
 
 .footer-legal a {
@@ -2333,7 +2333,7 @@ body {
 }
 
 .footer-legal a:hover {
-  text-decoration: underline;
+  cursor: pointer;
 }
 
 .footer-legal span {
@@ -2344,7 +2344,7 @@ body {
 @media (max-width: 600px) {
   .footer-legal {
     flex-wrap: wrap;
-    gap: .6rem;
+    gap: .5rem;
   }
 }
 /* =========================================================
