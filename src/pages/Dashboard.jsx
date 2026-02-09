@@ -56,8 +56,6 @@ export default function Dashboard() {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      const res = await fetch("http://localhost:3000/api/users/me", {
-        headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
       if (res.ok) setUser(data);
@@ -167,20 +165,10 @@ export default function Dashboard() {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (res.ok) setTasks(tasks.filter((t) => t._id !== id));
-      const res = await fetch(
-        `http://localhost:3000/api/tasks/${taskToDelete}`,
-        {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      if (res.ok) {
-        setTasks(tasks.filter((t) => t._id !== taskToDelete));
-      }
     } catch (err) {
       console.error(err);
     } finally {
+
       setShowDeleteModal(false);
       setTaskToDelete(null);
     }
@@ -266,50 +254,50 @@ export default function Dashboard() {
         {/* ================= HEADER ================= */}
         <div className="dashboard-header">
           <div
-  className="profile-trigger"
-  onClick={() => navigate("/profile", { state: { user } })}
->
-  <img src={profileAvatar} alt="Profile" className="profile-avatar" />
-  <span>{user?.name}</span>
-</div>
+            className="profile-trigger"
+            onClick={() => navigate("/profile", { state: { user } })}
+          >
+            <img src={profileAvatar} alt="Profile" className="profile-avatar" />
+            <span>{user?.name}</span>
+          </div>
 
 
           <div className="dashboard-header-right">
-    {/* NOTIFICATION BELL */}
-    <div
-      className={`notification-bell ${newNotif ? "wiggle" : ""}`}
-      onClick={toggleBell}
-    >
-      <img 
-    src={notificationIcon} 
-    alt="Notifications" 
-    className="notification-icon"
-  />
-      {unreadCount > 0 && (
-        <span className="notification-count">{unreadCount}</span>
-      )}
+            {/* NOTIFICATION BELL */}
+            <div
+              className={`notification-bell ${newNotif ? "wiggle" : ""}`}
+              onClick={toggleBell}
+            >
+              <img
+                src={notificationIcon}
+                alt="Notifications"
+                className="notification-icon"
+              />
+              {unreadCount > 0 && (
+                <span className="notification-count">{unreadCount}</span>
+              )}
 
-      {bellOpen && (
-        <div className="notification-dropdown">
-          {notifications.length === 0 ? (
-            <p className="no-notifications">No notifications</p>
-          ) : (
-            notifications.map((notif) => (
-              <div key={notif._id} className="notification-item">
-                <p>{notif.message}</p>
-                <button
-                  onClick={() =>
-                    handleDeleteNotification(notif._id)
-                  }
-                >
-                  ✖
-                </button>
-              </div>
-            ))
-          )}
-        </div>
-      )}
-    </div>
+              {bellOpen && (
+                <div className="notification-dropdown">
+                  {notifications.length === 0 ? (
+                    <p className="no-notifications">No notifications</p>
+                  ) : (
+                    notifications.map((notif) => (
+                      <div key={notif._id} className="notification-item">
+                        <p>{notif.message}</p>
+                        <button
+                          onClick={() =>
+                            handleDeleteNotification(notif._id)
+                          }
+                        >
+                          ✖
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
 
             <button
               className="settings-btn"
@@ -397,40 +385,40 @@ export default function Dashboard() {
             </form>
 
             {/* Task list */}
-        <div className="task-list">
-          {currentTasks.length === 0 ? (
-            <p>No tasks found. Add one above!</p>
-          ) : (
-            currentTasks.map((task) => (
-              <div key={task._id} className="task-card">
-                <h3>{task.title}</h3>
-                <p>Status: {task.status}</p>
-                <div className="task-actions">
-                  {["To-Do", "In Progress", "Completed"].map((s) => (
-                    <button
-                      key={s}
-                      onClick={() =>
-                        handleStatusChange(task._id, s)
-                      }
-                      disabled={task.status === s}
-                    >
-                      {s}
-                    </button>
-                  ))}
-                  <button
-  type="button"
-  onClick={() => openDeleteModal(task._id)}
-  style={{ backgroundColor: "#dc3545", marginLeft: "auto" }}
->
-  Delete
-</button>
+            <div className="task-list">
+              {currentTasks.length === 0 ? (
+                <p>No tasks found. Add one above!</p>
+              ) : (
+                currentTasks.map((task) => (
+                  <div key={task._id} className="task-card">
+                    <h3>{task.title}</h3>
+                    <p>Status: {task.status}</p>
+                    <div className="task-actions">
+                      {["To-Do", "In Progress", "Completed"].map((s) => (
+                        <button
+                          key={s}
+                          onClick={() =>
+                            handleStatusChange(task._id, s)
+                          }
+                          disabled={task.status === s}
+                        >
+                          {s}
+                        </button>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => openDeleteModal(task._id)}
+                        style={{ backgroundColor: "#dc3545", marginLeft: "auto" }}
+                      >
+                        Delete
+                      </button>
 
 
-                </div>
-              </div>
-            ))
-          )}
-        </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
             {/* ================= PAGINATION ================= */}
             {tasks.length > TASKS_PER_PAGE && (
               <div className="pagination">
@@ -463,7 +451,7 @@ export default function Dashboard() {
           </>
         )}
       </div>
-    {/* DELETE MODAL */}
+      {/* DELETE MODAL */}
       {showDeleteModal && (
         <div
           className="modal-overlay"
