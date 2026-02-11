@@ -19,6 +19,8 @@ import deleteTaskRouter from "./routes/deleteTaskRouter.js";
 import generateToken from "./utils/generateToken.js";
 import notificationsRouter from "./routes/notifications.js";
 import userRoutes from "./routes/userRoutes.js";
+import getUsersRouter from "./routes/getUsers.js";
+import deleteUserRouter from "./routes/deleteUser.js";
 
 
 connectDB();
@@ -66,6 +68,12 @@ app.use("/api", updateTaskRouter);
 
 // Delete Task
 app.use("/api", deleteTaskRouter);
+
+// Get Users
+app.use("/api", getUsersRouter);
+
+// Delete User
+app.use("/api", deleteUserRouter);
 
 // --- CONTACT FORM ROUTE ---
 app.post("/api/contact", (req, res) => {

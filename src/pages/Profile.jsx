@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import ProfileIcon from "../assets/profile-avatar.png"; // 
-import { useState, useEffect } from "react"; 
+import { useState, useEffect } from "react";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -8,7 +8,7 @@ export default function Profile() {
   const userFromState = location.state?.user;
 
   const [user, setUser] = useState(userFromState || null);
-  const [loading, setLoading] = useState(!userFromState); 
+  const [loading, setLoading] = useState(!userFromState);
   const token = localStorage.getItem("token");
 
   useEffect(() => {
@@ -21,7 +21,7 @@ export default function Profile() {
 
   const fetchUserProfile = async () => {
     try {
-      const res = await fetch("http://localhost:3000/api/users/me", {
+      const res = await fetch("https://studytrack-senior-project-1.onrender.com/api/users/", {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
@@ -32,6 +32,8 @@ export default function Profile() {
       setLoading(false);
     }
   };
+
+
 
   if (loading) return <p>Loading profile...</p>;
 
@@ -45,9 +47,9 @@ export default function Profile() {
         {user ? (
           <div className="profile-card">
             <img src={ProfileIcon} alt="Profile" className="profile-image" />
-            <h2>{user.name}</h2>
+            <h2>{localStorage.getItem("userName")}</h2>
             <p>{user.email}</p>
-            <p>Role: {user.role || "Student"}</p>
+            <p>Role: {localStorage.getItem("role") || "Student"}</p>
           </div>
         ) : (
           <p>User profile not found.</p>
