@@ -2,44 +2,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const MOCK_USERS = [
-  {
-    id: "u1",
-    name: "Alex Johnson",
-    email: "alex@example.com",
-    role: "user",
-    status: "active",
-    lastActive: "2026-02-01",
-    flags: [],
-  },
-  {
-    id: "u2",
-    name: "Maria Gomez",
-    email: "maria@example.com",
-    role: "user",
-    status: "active",
-    lastActive: "2025-12-10",
-    flags: ["inactive"],
-  },
-  {
-    id: "u3",
-    name: "Chris Lee",
-    email: "chris@example.com",
-    role: "user",
-    status: "active",
-    lastActive: "2026-01-28",
-    flags: ["abuse"],
-  },
-  {
-    id: "u4",
-    name: "Admin User",
-    email: "admin@example.com",
-    role: "admin",
-    status: "active",
-    lastActive: "2026-02-07",
-    flags: [],
-  },
-];
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -48,7 +10,7 @@ export default function AdminDashboard() {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role"); // expected: "admin"
 
-  const [users, setUsers] = useState(MOCK_USERS);
+  const [users, setUsers] = useState([]);
   const [query, setQuery] = useState("");
   const [flagFilter, setFlagFilter] = useState("all");
 
@@ -61,6 +23,21 @@ export default function AdminDashboard() {
     if (role && role !== "admin") {
       navigate("/dashboard");
     }
+
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch("https://studytrack-senior-project-1.onrender.com/api/users", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await response.json();
+        setUsers(data);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+    fetchUsers();
   }, [token, role, navigate]);
 
   const filteredUsers = useMemo(() => {
@@ -86,9 +63,23 @@ export default function AdminDashboard() {
     );
   };
 
-  const handleDelete = (id) => {
-    if (!window.confirm("Delete this user? (UI only)")) return;
-    setUsers((prev) => prev.filter((u) => u.id !== id));
+  const handleDelete = async (id) => {
+    if (window.confirm("Delete this user? (UI only)")) {
+      const deleteUser = fetch(`https://studytrack-senior-project-1.onrender.com/api/deleteUser/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      const deleteMessage = await deleteUser;
+
+      if (deleteMessage.ok) {
+        window.alert("User Deleted");
+        window.location.reload();
+      } else {
+        window.alert("User Not Deleted");
+      }
+    }
   };
 
   return (
@@ -188,7 +179,7 @@ export default function AdminDashboard() {
                       <div className="admin-actions">
                         <button
                           className="btn btn--outline"
-                          onClick={() => handleDisable(u.id)}
+                          onClick={() => handleDisable(u._id)}
                           disabled={u.status === "disabled"}
                         >
                           Disable
@@ -196,7 +187,7 @@ export default function AdminDashboard() {
 
                         <button
                           className="btn btn--danger"
-                          onClick={() => handleDelete(u.id)}
+                          onClick={() => handleDelete(u._id)}
                         >
                           Delete
                         </button>

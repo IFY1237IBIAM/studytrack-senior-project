@@ -26,8 +26,12 @@ export default function Header() {
           <Link to="/" onClick={() => setOpen(false)}>Home</Link>
           <Link to="/about" onClick={() => setOpen(false)}>About</Link>
           <Link to="/contact" onClick={() => setOpen(false)}>Contact</Link>
-       <Link to="/login" onClick={() => setOpen(false)}>Login</Link>
-</nav>
+          {localStorage.getItem("token") === null ? <Link to="/login" onClick={() => setOpen(false)}>Login</Link> : <Link to="/dashboard" onClick={() => setOpen(false)}>Dashboard</Link>}
+          {localStorage.getItem("role") === "admin" && (
+            <Link to="/admin/dashboard" onClick={() => setOpen(false)}>Admin Dashboard</Link>
+          )}
+
+        </nav>
 
       </div>
     </header>
