@@ -1,4 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
+import ProfileIcon from "../assets/profile-avatar.png"; // 
+import { useState, useEffect } from "react"; 
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -6,7 +8,7 @@ export default function Profile() {
   const userFromState = location.state?.user;
 
   const [user, setUser] = useState(userFromState || null);
-  const [loading, setLoading] = useState(!userFromState); // only fetch if not passed
+  const [loading, setLoading] = useState(!userFromState); 
   const token = localStorage.getItem("token");
 
   useEffect(() => {
