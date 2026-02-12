@@ -33,6 +33,14 @@ export default function Login() {
 
       if (response.ok) {
         setForm({ email: "", password: "" });
+        // Check if user is disabled
+
+        const status = data.status;
+        if (status === "disabled") {
+          window.alert("Your account has been disabled.");
+          navigate("/login");
+          return;
+        }
 
         // Save user info and token
         localStorage.setItem("token", data.token);
