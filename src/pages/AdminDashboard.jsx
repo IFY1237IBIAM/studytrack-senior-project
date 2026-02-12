@@ -58,7 +58,7 @@ export default function AdminDashboard() {
 
   // UI-only actions (backend will be connected by Leo)
   const handleDisable = async (id) => {
-    const disableUser = fetch(`http://localhost:5001/api/disableUser/${id}`, {
+    const disableUser = fetch(`https://studytrack-senior-project-1.onrender.com/api/disableUser/${id}`, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -97,7 +97,7 @@ export default function AdminDashboard() {
   };
 
   const handleEnable = async (id) => {
-    const enableUser = fetch(`http://localhost:5001/api/enableUser/${id}`, {
+    const enableUser = fetch(`https://studytrack-senior-project-1.onrender.com/api/enableUser/${id}`, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`,
