@@ -159,25 +159,25 @@ export default function Dashboard() {
   };
 
   // ================= DELETE TASK =================
-const confirmDeleteTask = async () => {
-  if (!taskToDelete) return;
+  const confirmDeleteTask = async () => {
+    if (!taskToDelete) return;
 
-  try {
-    const res = await fetch(`https://studytrack-senior-project-1.onrender.com/api/tasks/${taskToDelete}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    try {
+      const res = await fetch(`https://studytrack-senior-project-1.onrender.com/api/tasks/${taskToDelete}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-    if (res.ok) {
-      setTasks(tasks.filter((t) => t._id !== taskToDelete));
+      if (res.ok) {
+        setTasks(tasks.filter((t) => t._id !== taskToDelete));
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setShowDeleteModal(false);
+      setTaskToDelete(null);
     }
-  } catch (err) {
-    console.error(err);
-  } finally {
-    setShowDeleteModal(false);
-    setTaskToDelete(null);
-  }
-};
+  };
 
   // ================= TOGGLE BELL =================
   const toggleBell = () => {

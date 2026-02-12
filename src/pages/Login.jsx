@@ -23,7 +23,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await fetch("https://studytrack-senior-project-1.onrender.com/api/login", {
+      const response = await fetch("http://localhost:5001/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -33,6 +33,14 @@ export default function Login() {
 
       if (response.ok) {
         setForm({ email: "", password: "" });
+        // Check if user is disabled
+
+        const status = data.status;
+        if (status === "disabled") {
+          window.alert("Your account has been disabled.");
+          navigate("/login");
+          return;
+        }
 
         // Save user info and token
         localStorage.setItem("token", data.token);

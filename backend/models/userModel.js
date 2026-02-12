@@ -20,6 +20,15 @@ const userSchema = mongoose.Schema(
             enum: ['student', 'teacher'],
             default: 'student',
         },
+        status: {
+            type: String,
+            enum: ['active', 'disabled'],
+            default: 'active',
+        },
+        lastLogin: {
+            type: Date,
+            default: Date.now,
+        }
     },
     {
         timestamps: true,

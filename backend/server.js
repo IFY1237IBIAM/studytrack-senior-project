@@ -21,6 +21,7 @@ import notificationsRouter from "./routes/notifications.js";
 import userRoutes from "./routes/userRoutes.js";
 import getUsersRouter from "./routes/getUsers.js";
 import deleteUserRouter from "./routes/deleteUser.js";
+import userStatusRouter from "./routes/userStatusRouter.js";
 
 
 connectDB();
@@ -74,6 +75,11 @@ app.use("/api", getUsersRouter);
 
 // Delete User
 app.use("/api", deleteUserRouter);
+
+// Disable User
+app.use("/api", userStatusRouter);
+
+
 
 // --- CONTACT FORM ROUTE ---
 app.post("/api/contact", (req, res) => {

@@ -13,11 +13,13 @@ export const login = async (req, res) => {
         const user = await User.findOne({ email });
 
         if (user && (await bcrypt.compare(password, user.password))) {
+            const updateLastLogin = await User.updateOne({ _id: user._id }, { lastLogin: Date.now() });
             res.status(200).json({
                 _id: user.id,
                 name: user.name,
                 email: user.email,
                 role: user.role,
+                status: user.status,
                 token: generateToken(user._id),
             });
         } else {

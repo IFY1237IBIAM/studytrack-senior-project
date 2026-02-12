@@ -22,6 +22,7 @@ export const create = async (req, res) => {
             name,
             email,
             password: hashedPassword,
+            lastLogin: Date.now(),
         });
 
         if (user) {

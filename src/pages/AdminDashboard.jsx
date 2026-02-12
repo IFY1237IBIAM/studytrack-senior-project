@@ -57,7 +57,21 @@ export default function AdminDashboard() {
   }, [users, query, flagFilter]);
 
   // UI-only actions (backend will be connected by Leo)
-  const handleDisable = (id) => {
+  const handleDisable = async (id) => {
+    const disableUser = fetch(`http://localhost:5001/api/disableUser/${id}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    const disableMessage = await disableUser;
+
+    if (disableMessage.ok) {
+      window.alert("User Disabled");
+      window.location.reload();
+    } else {
+      window.alert("User Not Disabled");
+    }
     setUsers((prev) =>
       prev.map((u) => (u.id === id ? { ...u, status: "disabled" } : u))
     );
@@ -80,6 +94,37 @@ export default function AdminDashboard() {
         window.alert("User Not Deleted");
       }
     }
+  };
+
+  const handleEnable = async (id) => {
+    const enableUser = fetch(`http://localhost:5001/api/enableUser/${id}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    const enableMessage = await enableUser;
+
+    if (enableMessage.ok) {
+      window.alert("User Enabled");
+      window.location.reload();
+    } else {
+      window.alert("User Not Enabled");
+    }
+    setUsers((prev) =>
+      prev.map((u) => (u.id === id ? { ...u, status: "active" } : u))
+    );
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+    });
   };
 
   return (
@@ -129,7 +174,6 @@ export default function AdminDashboard() {
                   <th>Role</th>
                   <th>Status</th>
                   <th>Last Active</th>
-                  <th>Flags</th>
                   <th className="admin-actions-col">Actions</th>
                 </tr>
               </thead>
@@ -161,19 +205,7 @@ export default function AdminDashboard() {
                       </span>
                     </td>
 
-                    <td>{u.lastActive}</td>
-
-                    <td>
-                      {(u.flags || []).length ? (
-                        <div className="flag-row">
-                          {u.flags.map((f) => (
-                            <span key={f} className="flag-pill">{f}</span>
-                          ))}
-                        </div>
-                      ) : (
-                        <span className="muted">—</span>
-                      )}
-                    </td>
+                    <td>{formatDate(u.lastLogin)}</td>
 
                     <td className="admin-actions-col">
                       <div className="admin-actions">
@@ -183,6 +215,13 @@ export default function AdminDashboard() {
                           disabled={u.status === "disabled"}
                         >
                           Disable
+                        </button>
+                        <button
+                          className="btn btn--outline"
+                          onClick={() => handleEnable(u._id)}
+                          disabled={u.status === "active"}
+                        >
+                          Enable
                         </button>
 
                         <button
@@ -206,16 +245,6 @@ export default function AdminDashboard() {
               </tbody>
             </table>
           </div>
-
-          <p className="admin-note">
-            Backend contract for Leo:
-            <br />
-            Route: <code>/admin/dashboard</code>
-            <br />
-            Expected user fields: <code>id</code>, <code>name</code>, <code>email</code>, <code>role</code>, <code>status</code>, <code>lastActive</code>, <code>flags[]</code>
-            <br />
-            Actions triggered: <code>disableUser(id)</code>, <code>deleteUser(id)</code>
-          </p>
         </div>
       </div>
     </section>

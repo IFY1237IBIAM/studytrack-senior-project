@@ -14,6 +14,8 @@ export const getMe = async (req, res) => {
       email: user.email,
       id: user._id,
       createdAt: user.createdAt,
+      lastLogin: user.lastLogin,
+      role: user.role,
     });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
